@@ -1,0 +1,200 @@
+from abc import ABC, abstractmethod
+
+
+# Abstract Base Class
+class Person(ABC):
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+    @abstractmethod
+    def get_role(self):
+        pass
+
+
+
+# Student Class
+
+class Student(Person):
+    def __init__(self, name, age, student_id):
+        super().__init__(name, age)
+        self.student_id = student_id
+        self.courses = []   # list of enrolled courses
+
+    def get_role(self):
+        return "Student"
+
+    def enroll_course(self, course):
+        self.courses.append(course)
+        course.enroll_student(self)  # add student to course as well
+        print(f"{self.name} enrolled in {course.course_name}")
+
+    def list_courses(self):
+        if not self.courses:
+            print(f"{self.name} is not enrolled in any course.")
+        else:
+            print(f"{self.name}'s Enrolled Courses:")
+            for c in self.courses:
+                print(f"- {c.course_name} ({c.course_code})")
+
+
+
+# Teacher Class
+
+class Teacher(Person):
+    def __init__(self, name, age, teacher_id):
+        super().__init__(name, age)
+        self.teacher_id = teacher_id
+        self.assigned_courses = []
+
+    def get_role(self):
+        return "Teacher"
+
+    def assign_course(self, course):
+        self.assigned_courses.append(course)
+        course.set_teacher(self)
+        print(f"{self.name} assigned to {course.course_name}")
+
+    def list_assigned_courses(self):
+        if not self.assigned_courses:
+            print(f"{self.name} is not assigned to any course.")
+        else:
+            print(f"{self.name}'s Assigned Courses:")
+            for c in self.assigned_courses:
+                print(f"- {c.course_name} ({c.course_code})")
+
+
+
+# Course Class
+
+class Course:
+    def __init__(self, course_name, course_code):
+        self.course_name = course_name
+        self.course_code = course_code
+        self.teacher = None
+        self.students = []
+
+    def set_teacher(self, teacher):
+        self.teacher = teacher
+
+    def enroll_student(self, student):
+        if student not in self.students:
+            self.students.append(student)
+
+    def course_info(self):
+        print(f"Course: {self.course_name} ({self.course_code})")
+        if self.teacher:
+            print(f"Teacher: {self.teacher.name}")
+        else:
+            print("Teacher: Not assigned")
+        if not self.students:
+            print("No students enrolled yet.")
+        else:
+            print("Enrolled Students:")
+            for s in self.students:
+                print(f"- {s.name} ({s.student_id})")
+
+
+
+# Department Class
+class Department:
+    def __init__(self, dept_name):
+        self.dept_name = dept_name
+        self.courses = []
+        self.teachers = []
+
+    def add_course(self, course):
+        self.courses.append(course)
+
+    def add_teacher(self, teacher):
+        self.teachers.append(teacher)
+
+    def dept_info(self):
+        print(f"Department: {self.dept_name}")
+        print("Courses Offered:")
+        for c in self.courses:
+            print(f"- {c.course_name} ({c.course_code})")
+
+# Administration Class
+
+class Administration:
+    def __init__(self):
+        self.students = []
+        self.teachers = []
+        self.departments = []
+
+    def add_student(self, student):
+        self.students.append(student)
+
+    def add_teacher(self, teacher):
+        self.teachers.append(teacher)
+
+    def add_department(self, dept):
+        self.departments.append(dept)
+
+    def list_students(self):
+        print("All Students:")
+        for s in self.students:
+            print(f"- {s.name} ({s.student_id})")
+
+    def list_teachers(self):
+        print("All Teachers:")
+        for t in self.teachers:
+            print(f"- {t.name} ({t.teacher_id})")
+
+
+
+# Example Usage
+
+if __name__ == "__main__":
+    # Create Administration
+    admin = Administration()
+
+    # Create Department
+    cs_dept = Department("Computer Science")
+
+    # Create Courses
+    c1 = Course("Python Programming", "CS101")
+    c2 = Course("Data Structures", "CS102")
+
+    cs_dept.add_course(c1)
+    cs_dept.add_course(c2)
+
+    # Create Teachers
+    t1 = Teacher("Dr. Smith", 45, "T1001")
+    t2 = Teacher("Dr. John", 50, "T1002")
+
+    admin.add_teacher(t1)
+    admin.add_teacher(t2)
+
+    # Assign teachers to courses
+    t1.assign_course(c1)
+    t2.assign_course(c2)
+
+    # Create Students
+    s1 = Student("Alice", 20, "S2001")
+    s2 = Student("Bob", 21, "S2002")
+
+    admin.add_student(s1)
+    admin.add_student(s2)
+
+    # Students enrolling in courses
+    s1.enroll_course(c1)
+    s1.enroll_course(c2)
+    s2.enroll_course(c2)
+
+    # Display info
+    print("\n--- Department Info ---")
+    cs_dept.dept_info()
+
+    print("\n--- Course Info ---")
+    c1.course_info()
+    c2.course_info()
+
+    print("\n--- Student Info ---")
+    s1.list_courses()
+    s2.list_courses()
+
+    print("\n--- Teacher Info ---")
+    t1.list_assigned_courses()
+    t2.list_assigned_courses()
